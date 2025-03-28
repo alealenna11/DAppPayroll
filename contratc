@@ -1,0 +1,110 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts@4.9.0/access/Ownable.sol";
+import "@openzeppelin/contracts@4.9.0/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts@4.9.0/security/Pausable.sol";
+import "@openzeppelin/contracts@4.9.0/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts@4.9.0/token/ERC20/utils/SafeERC20.sol";
+
+contract StablecoinPayroll is Ownable, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
+
+    struct Employee {
+        address addr;
+        uint salary; // Salary in stablecoin units (e.g., 100 USDC = 100 * 10^decimals)
+        uint lastPayment;
+        bool isActive;
+    }
+
+    Employee[] public employees;
+    mapping(address => uint) private employeeIndex;
+    IERC20 public stablecoin;
+
+    event EmployeeAdded(address indexed addr, uint salary);
+    event EmployeeRemoved(address indexed addr);
+    event SalaryPaid(address indexed employee, uint amount);
+    event BatchPaymentCompleted(uint totalEmployees, uint totalPaid);
+
+    constructor(address _stablecoin) {
+        stablecoin = IERC20(_stablecoin);
+    }
+
+    // Add employee (owner only)
+    function addEmployee(address _addr, uint _salary) external onlyOwner {
+        require(_addr != address(0), "Invalid address");
+        require(_salary > 0, "Salary must be > 0");
+        require(employeeIndex[_addr] == 0, "Employee exists");
+        
+        employees.push(Employee(_addr, _salary, 0, true));
+        employeeIndex[_addr] = employees.length;
+        emit EmployeeAdded(_addr, _salary);
+    }
+
+    // Batch pay all active employees in one transaction
+    function payAllEmployees() external onlyOwner nonReentrant {
+        uint totalToPay;
+        uint activeCount;
+        
+        // Calculate total required stablecoin
+        for (uint i = 0; i < employees.length; i++) {
+            if (employees[i].isActive) {
+                totalToPay += employees[i].salary;
+                activeCount++;
+            }
+        }
+
+        require(activeCount > 0, "No active employees");
+        require(
+            stablecoin.balanceOf(address(this)) >= totalToPay,
+            "Insufficient stablecoin balance"
+        );
+
+        // Process payments
+        for (uint i = 0; i < employees.length; i++) {
+            if (employees[i].isActive) {
+                employees[i].lastPayment = block.timestamp;
+                stablecoin.safeTransfer(employees[i].addr, employees[i].salary);
+                emit SalaryPaid(employees[i].addr, employees[i].salary);
+            }
+        }
+
+        emit BatchPaymentCompleted(activeCount, totalToPay);
+    }
+
+    // Employee self-service claim
+    function claimSalary() external nonReentrant whenNotPaused {
+        uint index = employeeIndex[msg.sender];
+        require(index != 0, "Not an employee");
+        
+        Employee storage emp = employees[index - 1];
+        require(emp.isActive, "Not active");
+        require(
+            stablecoin.balanceOf(address(this)) >= emp.salary,
+            "Insufficient funds"
+        );
+
+        emp.lastPayment = block.timestamp;
+        stablecoin.safeTransfer(msg.sender, emp.salary);
+        emit SalaryPaid(msg.sender, emp.salary);
+    }
+
+    // Emergency functions
+    function withdrawStablecoin() external onlyOwner nonReentrant {
+        uint balance = stablecoin.balanceOf(address(this));
+        stablecoin.safeTransfer(owner(), balance);
+    }
+
+    function pausePayments() external onlyOwner {
+        _pause();
+    }
+
+    function unpausePayments() external onlyOwner {
+        _unpause();
+    }
+
+    // Allow receiving ERC20 tokens (for USDC/USDT deposits)
+    function depositStablecoin(uint amount) external {
+        stablecoin.safeTransferFrom(msg.sender, address(this), amount);
+    }
+}

@@ -1,0 +1,209 @@
+.employeeDashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.dashboardHeader {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  padding: 20px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerIcon {
+  font-size: 36px;
+  color: #667eea;
+  margin-right: 15px;
+}
+
+.employeeInfo h1 {
+  margin: 0;
+  color: #2d3748;
+}
+
+.employeeInfo p {
+  margin: 5px 0 0;
+  color: #718096;
+}
+
+.walletInfo {
+  display: flex;
+  align-items: center;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.walletInfo span {
+  margin-left: 10px;
+  color: #667eea;
+}
+
+.financialSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.financialCard {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+}
+
+.cardIcon {
+  font-size: 48px;
+  color: #667eea;
+  margin-right: 20px;
+}
+
+.cardContent {
+  flex-grow: 1;
+}
+
+.cardContent h3 {
+  margin: 0 0 10px;
+  color: #4a5568;
+}
+
+.cardContent p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.claimButton {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.claimButton:disabled {
+  background: #e2e8f0;
+  cursor: not-allowed;
+}
+
+.transactionSection {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sectionIcon {
+  font-size: 24px;
+  color: #667eea;
+  margin-right: 10px;
+}
+
+.transactionList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.transactionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.transactionDetails h4 {
+  margin: 0;
+  color: #2d3748;
+}
+
+.transactionDetails p {
+  margin: 5px 0 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.transactionMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.transactionMeta span {
+  color: #718096;
+  font-size: 14px;
+}
+
+.transactionStatus {
+  margin-top: 5px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.transactionStatus.pending {
+  background: #ffd700;
+  color: #333;
+}
+
+.transactionStatus.completed {
+  background: #48bb78;
+  color: white;
+}
+
+.transactionStatus.rejected {
+  background: #f56565;
+  color: white;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+  .headerContent {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .walletInfo {
+    margin-top: 10px;
+  }
+
+  .financialSection {
+    grid-template-columns: 1fr;
+  }
+
+  .transactionItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .transactionMeta {
+    margin-top: 10px;
+    align-items: flex-start;
+    width: 100%;
+  }
+}
